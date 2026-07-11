@@ -4,6 +4,12 @@ dist/
 .codex-backups/
 backup/
 .nested-git-backups/
+tracero-antd/
+
+/*.md
+*.docx
+*.pdf
+*.pptx
 
 *.log
 *.tmp
