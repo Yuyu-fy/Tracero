@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.uploads/
+.codex-backups/
+backup/
+.nested-git-backups/
+
+*.log
+*.tmp
+*.temp
+
+.DS_Store
+Thumbs.db
