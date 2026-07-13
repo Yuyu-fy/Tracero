@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
+import { TraceroProvider } from '@/context/tracero-provider'
 import { EventDetailPage } from '@/features/tracero/event-detail'
 
 export const Route = createFileRoute('/_authenticated/tracero/current')({
@@ -16,33 +17,36 @@ function CurrentRunRoute() {
   const navigate = Route.useNavigate()
 
   return (
-    <EventDetailPage
-      role={search.role}
-      selectedLocationId={search.location}
-      activeDeveloperTab={search.tab}
-      onRoleChange={(role) =>
-        navigate({
-          search: (previous) => ({ ...previous, role }),
-          replace: true,
-        })
-      }
-      onDeveloperLocationChange={(location) =>
-        navigate({
-          search: (previous) => ({
-            ...previous,
-            role: 'dev',
-            location,
-            tab: 'code',
-          }),
-          replace: true,
-        })
-      }
-      onDeveloperTabChange={(tab) =>
-        navigate({
-          search: (previous) => ({ ...previous, role: 'dev', tab }),
-          replace: true,
-        })
-      }
-    />
+    <TraceroProvider
+      initialRole={search.role}
+      initialLocationId={search.location}
+      initialDeveloperTab={search.tab}
+    >
+      <EventDetailPage
+        onRoleChange={(role) =>
+          navigate({
+            search: (previous) => ({ ...previous, role }),
+            replace: true,
+          })
+        }
+        onDeveloperLocationChange={(location) =>
+          navigate({
+            search: (previous) => ({
+              ...previous,
+              role: 'dev',
+              location,
+              tab: 'code',
+            }),
+            replace: true,
+          })
+        }
+        onDeveloperTabChange={(tab) =>
+          navigate({
+            search: (previous) => ({ ...previous, role: 'dev', tab }),
+            replace: true,
+          })
+        }
+      />
+    </TraceroProvider>
   )
 }

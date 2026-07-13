@@ -1,6 +1,12 @@
 import { createContext } from 'react'
-
-export type UserRole = 'general' | 'dev' | 'test' | 'ops'
+import type {
+  AgentPushStatus,
+  DeveloperTab,
+  EvidencePackage,
+  LatencyMetrics,
+  TraceroRun,
+  UserRole,
+} from '@/features/tracero/types'
 
 export interface Message {
   id: number
@@ -11,6 +17,18 @@ export interface Message {
 export interface TraceroContextType {
   role: UserRole
   setRole: (role: UserRole) => void
+  selectedLocationId: string | undefined
+  setSelectedLocationId: (locationId: string | undefined) => void
+  developerTab: DeveloperTab
+  setDeveloperTab: (tab: DeveloperTab) => void
+  currentRun: TraceroRun | null
+  evidencePackage: EvidencePackage | null
+  pushStatus: AgentPushStatus
+  latency: LatencyMetrics | null
+  error: string | null
+  isSimulating: boolean
+  loadCurrentRun: () => Promise<void>
+  simulateTc01Push: () => Promise<void>
   messages: Message[]
   addMessage: (message: Message) => void
   resetChat: () => void

@@ -12,12 +12,16 @@ import {
   FileText,
   Lightbulb,
   LayoutGrid,
+  Loader2,
   MessageSquareText,
+  PlayCircle,
   Settings2,
   Sparkles,
+  Timer,
   User,
   Users,
 } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,6 +38,7 @@ import {
 } from '@/components/ui/select'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
+import { useTracero } from '@/context/use-tracero'
 import { useTraceroChatStore } from './chat-store'
 import {
   DeveloperView,
@@ -47,6 +52,7 @@ import {
 } from './mock-data'
 import { OpsView } from './ops/ops-view'
 import { TestView } from './test/test-view'
+import type { AgentPushStatus } from './types'
 
 const timelineStyles: Record<TimelineLevel, string> = {
   info: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/70 dark:bg-sky-950/35 dark:text-sky-300',
@@ -72,6 +78,32 @@ const evidenceLabels: Record<EvidenceType, string> = {
   config: '配置',
 }
 
+const evidenceStyles: Record<
+  EvidenceType,
+  { icon: string; badge: string; border: string }
+> = {
+  log: {
+    icon: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300',
+    badge: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-800 dark:bg-rose-950/50 dark:text-rose-300',
+    border: 'border-rose-200/80 dark:border-rose-800/60',
+  },
+  code: {
+    icon: 'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-300',
+    badge: 'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-300',
+    border: 'border-violet-200/80 dark:border-violet-800/60',
+  },
+  metric: {
+    icon: 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-300',
+    badge: 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950/50 dark:text-orange-300',
+    border: 'border-orange-200/80 dark:border-orange-800/60',
+  },
+  config: {
+    icon: 'border-pink-200 bg-pink-50 text-pink-700 dark:border-pink-800 dark:bg-pink-950/50 dark:text-pink-300',
+    badge: 'border-pink-200 bg-pink-50 text-pink-700 dark:border-pink-800 dark:bg-pink-950/50 dark:text-pink-300',
+    border: 'border-pink-200/80 dark:border-pink-800/60',
+  },
+}
+
 type EventDetailPageProps = {
   role?: UserRole
   selectedLocationId?: string
@@ -90,54 +122,51 @@ export function EventDetailPage({
   onDeveloperTabChange,
 }: EventDetailPageProps = {}) {
   const navigate = useNavigate()
-  const [localRole, setLocalRole] = useState<UserRole>('general')
-  const [localLocationId, setLocalLocationId] = useState(
-    currentRun.developerAnalysis.defaultCodeLocationId
-  )
-  const [localDeveloperTab, setLocalDeveloperTab] =
-    useState<DeveloperTab>('code')
+  const tracero = useTracero()
+  const run = tracero.currentRun ?? currentRun
   const [inputValue, setInputValue] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
-  const role = controlledRole ?? localRole
-  const developerAnalysis = currentRun.developerAnalysis
+  const role = controlledRole ?? tracero.role
+  const developerAnalysis = run.developerAnalysis
   const activeLocationId =
-    selectedLocationId ?? localLocationId
-  const activeDeveloperTab = controlledDeveloperTab ?? localDeveloperTab
+    selectedLocationId ??
+    tracero.selectedLocationId ??
+    developerAnalysis.defaultCodeLocationId
+  const activeDeveloperTab = controlledDeveloperTab ?? tracero.developerTab
   const activeLocation =
     developerAnalysis.codeLocations.find(
       (location) => location.id === activeLocationId
     ) ?? developerAnalysis.codeLocations[0]
   const messages = useTraceroChatStore((state) =>
-    state.getMessages(currentRun.run_id)
+    state.getMessages(run.run_id)
   )
   const addMessage = useTraceroChatStore((state) => state.addMessage)
 
   function changeRole(nextRole: UserRole) {
+    tracero.setRole(nextRole)
+
     if (onRoleChange) {
       onRoleChange(nextRole)
       return
     }
-
-    setLocalRole(nextRole)
   }
 
   function changeDeveloperLocation(locationId: string) {
+    tracero.setSelectedLocationId(locationId)
+    tracero.setDeveloperTab('code')
+
     if (onDeveloperLocationChange) {
       onDeveloperLocationChange(locationId)
       return
     }
-
-    setLocalLocationId(locationId)
-    setLocalDeveloperTab('code')
   }
 
   function changeDeveloperTab(tab: DeveloperTab) {
+    tracero.setDeveloperTab(tab)
+
     if (onDeveloperTabChange) {
       onDeveloperTabChange(tab)
-      return
     }
-
-    setLocalDeveloperTab(tab)
   }
 
   const getRoleTitle = (r: UserRole) => {
@@ -159,7 +188,7 @@ export function EventDetailPage({
 
     const question = inputValue.trim()
 
-    addMessage(currentRun.run_id, {
+    addMessage(run.run_id, {
       role: 'user',
       content: question,
       context: {
@@ -173,11 +202,11 @@ export function EventDetailPage({
           role === 'dev' ? activeLocation.functionName : undefined,
         module:
           role === 'test'
-            ? currentRun.testAnalysis.modules[0].module
+            ? run.testAnalysis.modules[0].module
             : undefined,
         testCaseId:
           role === 'test'
-            ? currentRun.testAnalysis.testCases[0].id
+            ? run.testAnalysis.testCases[0].id
             : undefined,
       },
     })
@@ -185,7 +214,7 @@ export function EventDetailPage({
     setIsGenerating(true)
 
     window.setTimeout(() => {
-      addMessage(currentRun.run_id, {
+      addMessage(run.run_id, {
         role: 'assistant',
         content:
           role === 'dev'
@@ -202,11 +231,11 @@ export function EventDetailPage({
             role === 'dev' ? activeLocation.functionName : undefined,
           module:
             role === 'test'
-              ? currentRun.testAnalysis.modules[0].module
+              ? run.testAnalysis.modules[0].module
               : undefined,
           testCaseId:
             role === 'test'
-              ? currentRun.testAnalysis.testCases[0].id
+              ? run.testAnalysis.testCases[0].id
               : undefined,
         },
       })
@@ -215,7 +244,10 @@ export function EventDetailPage({
   }
 
   return (
-    <div className='flex h-full min-h-0 flex-col overflow-hidden'>
+    <div
+      data-tracero-current-page
+      className='flex h-full min-h-0 flex-col overflow-hidden'
+    >
       <Header className='min-h-16 shrink-0 gap-3 px-4'>
         <div className='flex min-w-0 items-center gap-3'>
           <Button
@@ -228,10 +260,10 @@ export function EventDetailPage({
           </Button>
           <div className='min-w-0'>
             <h1 className='truncate text-lg font-semibold sm:text-xl'>
-              当前推理 - {currentRun.event_type}
+              当前推理 - {run.event_type}
             </h1>
             <p className='truncate text-sm text-muted-foreground'>
-              {currentRun.robot} · {currentRun.trigger_time} ·{' '}
+              {run.robot} · {run.trigger_time} ·{' '}
               {getRoleTitle(role)}
             </p>
           </div>
@@ -280,11 +312,22 @@ export function EventDetailPage({
       <Main
         fixed
         fluid
-        className='min-h-0 flex-1 overflow-hidden bg-muted/20 p-4 md:p-5'
+        className='flex min-h-0 flex-1 flex-col gap-3 overflow-hidden bg-background/25 p-4 md:p-5'
       >
+        <AgentPushStatusBar
+          status={tracero.pushStatus}
+          evidenceSource={tracero.evidencePackage?.source}
+          topicWindowSeconds={tracero.evidencePackage?.topic_window_seconds}
+          latencyMs={tracero.latency?.total_ms}
+          error={tracero.error}
+          isSimulating={tracero.isSimulating}
+          onSimulate={tracero.simulateTc01Push}
+        />
+
+        <div className='min-h-0 flex-1 overflow-hidden'>
         <ResizablePanels
           left={
-            <Card className='flex h-full min-h-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-background/90 py-0 shadow-none'>
+            <Card className='flex h-full min-h-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-background/50 py-0 shadow-none'>
               <CardHeader className='shrink-0 border-b py-4'>
                 <CardTitle className='flex items-center gap-2 text-base'>
                   <Clock3 className='size-5 text-sky-600 dark:text-sky-300' />
@@ -294,7 +337,7 @@ export function EventDetailPage({
               <CardContent className='min-h-0 flex-1 overflow-hidden p-0'>
                 <ScrollArea className='h-full'>
                   <div className='space-y-1 p-4'>
-                    {currentRun.timeline.map((item, index) => (
+                    {run.timeline.map((item, index) => (
                       <div
                         key={`${item.time}-${item.title}`}
                         className='flex gap-3'
@@ -303,7 +346,7 @@ export function EventDetailPage({
                           <span className='font-mono text-[11px] text-muted-foreground'>
                             {item.time}
                           </span>
-                          {index < currentRun.timeline.length - 1 && (
+                          {index < run.timeline.length - 1 && (
                             <span className='mt-2 h-full min-h-10 w-px bg-border' />
                           )}
                         </div>
@@ -334,12 +377,12 @@ export function EventDetailPage({
             </Card>
           }
           middle={
-              <Card className='flex h-full min-h-0 min-w-0 max-w-full flex-col gap-0 overflow-hidden rounded-none border-0 bg-background/95 py-0 shadow-none'>
+              <Card className='flex h-full min-h-0 min-w-0 max-w-full flex-col gap-0 overflow-hidden rounded-none border-0 bg-background/55 py-0 shadow-none'>
                 {role === 'dev' ? (
                   <CardContent className='min-h-0 min-w-0 flex-1 overflow-hidden p-0'>
                     <DeveloperView
                       analysis={developerAnalysis}
-                      conclusion={currentRun.conclusion}
+                      conclusion={run.conclusion}
                       selectedLocationId={activeLocation.id}
                       activeTab={activeDeveloperTab}
                       onSelectLocation={changeDeveloperLocation}
@@ -348,11 +391,11 @@ export function EventDetailPage({
                   </CardContent>
                 ) : role === 'test' ? (
                   <CardContent className='min-h-0 min-w-0 flex-1 overflow-hidden p-0'>
-                    <TestView analysis={currentRun.testAnalysis} />
+                    <TestView analysis={run.testAnalysis} />
                   </CardContent>
                 ) : role === 'ops' ? (
                   <CardContent className='min-h-0 min-w-0 flex-1 overflow-hidden p-0'>
-                    <OpsView analysis={currentRun.opsAnalysis} />
+                    <OpsView analysis={run.opsAnalysis} />
                   </CardContent>
                 ) : (
                 <>
@@ -372,7 +415,7 @@ export function EventDetailPage({
                           事实
                         </div>
                         <p className='text-sm leading-6'>
-                          {currentRun.conclusion.fact}
+                          {run.conclusion.fact}
                         </p>
                       </div>
                       <div className='rounded-lg border border-amber-200/80 bg-amber-50/70 p-3 dark:border-amber-900/70 dark:bg-amber-950/25'>
@@ -381,7 +424,7 @@ export function EventDetailPage({
                           推理
                         </div>
                         <p className='text-sm leading-6'>
-                          {currentRun.conclusion.reasoning}
+                          {run.conclusion.reasoning}
                         </p>
                       </div>
                       <div className='rounded-lg border border-emerald-200/80 bg-emerald-50/70 p-3 dark:border-emerald-900/70 dark:bg-emerald-950/25'>
@@ -390,14 +433,15 @@ export function EventDetailPage({
                           建议
                         </div>
                         <p className='text-sm leading-6'>
-                          {currentRun.conclusion.suggestion}
+                          {run.conclusion.suggestion}
                         </p>
                       </div>
                     </section>
 
                     <section className='space-y-3'>
-                      {currentRun.evidence.map((evidence) => {
+                      {run.evidence.map((evidence) => {
                         const Icon = evidenceIcons[evidence.type]
+                        const style = evidenceStyles[evidence.type]
 
                         return (
                           <article
@@ -406,15 +450,15 @@ export function EventDetailPage({
                           >
                             <div className='flex flex-wrap items-start justify-between gap-3'>
                               <div className='flex min-w-0 items-start gap-3'>
-                                <div className='flex size-9 shrink-0 items-center justify-center rounded-md border bg-muted'>
-                                  <Icon className='size-4 text-muted-foreground' />
+                                <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${style.icon}`}>
+                                  <Icon className='size-4' />
                                 </div>
                                 <div className='min-w-0'>
                                   <div className='flex flex-wrap items-center gap-2'>
                                     <Badge variant='secondary'>
                                       {evidence.id}
                                     </Badge>
-                                    <Badge variant='outline'>
+                                    <Badge variant='outline' className={style.badge}>
                                       {evidenceLabels[evidence.type]}
                                     </Badge>
                                   </div>
@@ -445,8 +489,8 @@ export function EventDetailPage({
             </Card>
           }
           right={
-            <Card className='flex h-full min-h-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-background/95 py-0 shadow-none'>
-              <CardHeader className='flex h-14 shrink-0 items-center border-b py-0 !pb-0'>
+            <Card className='flex h-full min-h-0 flex-col gap-0 overflow-hidden rounded-none border-0 bg-background/55 py-0 shadow-none'>
+              <CardHeader className='grid shrink-0 grid-rows-[auto_auto] items-center border-b py-4'>
                 <CardTitle className='flex items-center gap-2 text-base'>
                   <MessageSquareText className='size-5 text-emerald-600 dark:text-emerald-300' />
                   AI Chat
@@ -476,7 +520,84 @@ export function EventDetailPage({
             </Card>
           }
         />
+        </div>
       </Main>
     </div>
+  )
+}
+
+function AgentPushStatusBar({
+  status,
+  evidenceSource,
+  topicWindowSeconds,
+  latencyMs,
+  error,
+  isSimulating,
+  onSimulate,
+}: {
+  status: AgentPushStatus
+  evidenceSource?: string
+  topicWindowSeconds?: number
+  latencyMs?: number
+  error: string | null
+  isSimulating: boolean
+  onSimulate: () => Promise<void>
+}) {
+  const statusText: Record<AgentPushStatus, string> = {
+    idle: '等待 Agent 推送',
+    receiving: '接收异常切片',
+    reasoning: '后端推理中',
+    done: '链路已跑通',
+    failed: '链路异常',
+  }
+  const isBusy = status === 'receiving' || status === 'reasoning'
+
+  return (
+    <Alert
+      variant={status === 'failed' ? 'destructive' : 'default'}
+      className='shrink-0 bg-background/95'
+    >
+      {isBusy ? (
+        <Loader2 className='animate-spin' />
+      ) : (
+        <Timer className='text-sky-600' />
+      )}
+      <AlertTitle className='flex flex-wrap items-center gap-2'>
+        <span>{statusText[status]}</span>
+        {latencyMs !== undefined && (
+          <Badge variant='secondary' className='font-mono'>
+            E2E {latencyMs}ms
+          </Badge>
+        )}
+      </AlertTitle>
+      <AlertDescription>
+        <div className='flex w-full flex-wrap items-center gap-2'>
+          <span>
+            TC-01 mock 会模拟“障碍物注入 → Agent 切片 → 后端三段式结论 → 前端展示”。
+          </span>
+          {topicWindowSeconds !== undefined && (
+            <Badge variant='outline'>{topicWindowSeconds}s 环形缓冲</Badge>
+          )}
+          {evidenceSource && (
+            <Badge variant='outline'>source: {evidenceSource}</Badge>
+          )}
+          {error && <span className='font-medium'>{error}</span>}
+          <Button
+            type='button'
+            size='sm'
+            className='ml-auto'
+            disabled={isSimulating}
+            onClick={() => void onSimulate()}
+          >
+            {isSimulating ? (
+              <Loader2 className='animate-spin' />
+            ) : (
+              <PlayCircle />
+            )}
+            模拟 TC-01 推送
+          </Button>
+        </div>
+      </AlertDescription>
+    </Alert>
   )
 }
