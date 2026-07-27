@@ -23,9 +23,9 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import type { currentRun } from '../mock-data'
+import type { mockCurrentRun } from '../mock-data'
 
-type TestAnalysis = typeof currentRun.testAnalysis
+type TestAnalysis = typeof mockCurrentRun.testAnalysis
 
 type TestViewProps = {
   analysis: TestAnalysis
@@ -155,9 +155,9 @@ export function TestView({ analysis }: TestViewProps) {
                   </div>
 
                   <div className='mt-3 flex flex-wrap gap-1'>
-                    {module.evidenceIds.map((evidenceId) => (
-                      <Badge key={evidenceId} variant='outline'>
-                        {evidenceId}
+                    {module.evidence_ids.map((evidence_id) => (
+                      <Badge key={evidence_id} variant='outline'>
+                        {evidence_id}
                       </Badge>
                     ))}
                   </div>

@@ -1,10 +1,11 @@
-import { currentRun } from './mock-data'
+import { mockCurrentRun } from './mock-data'
 import type {
   ChatApiRequest,
   ChatApiResponse,
   EvidencePackage,
   LatencyMetrics,
   QuestionReasoningRequest,
+  ReasoningConclusion,
   SimulatedAgentPushResult,
   TraceroRun,
 } from './types'
@@ -18,13 +19,27 @@ const API_BASE_URL = (import.meta.env.VITE_TRACERO_API_BASE_URL ?? '').replace(
 const USE_MOCK = import.meta.env.VITE_TRACERO_USE_MOCK !== 'false'
 
 const endpoints = {
-  currentRun:
-    import.meta.env.VITE_TRACERO_CURRENT_RUN_PATH ?? '/tracero/runs/current',
   reasoning: import.meta.env.VITE_TRACERO_REASONING_PATH ?? '/api/debug/reason',
   questionReasoning:
     import.meta.env.VITE_TRACERO_QUESTION_REASONING_PATH ??
     '/tracero/reasoning/question',
   chat: import.meta.env.VITE_TRACERO_CHAT_PATH ?? '/tracero/chat',
+  runs: import.meta.env.VITE_TRACERO_RUNS_PATH ?? '/api/runs',
+}
+
+type ReasoningApiResponse = {
+  run_id: string
+  evidence_type?: string
+  output: string
+  status: 'completed' | 'verification_failed'
+  verified: boolean
+  errors: string[]
+  valid_evidence_ids: string[]
+  created_at: string
+}
+
+type RunsApiResponse = {
+  runs: Array<Pick<ReasoningApiResponse, 'run_id' | 'created_at'>>
 }
 
 function formatTime(value: string) {
@@ -46,7 +61,7 @@ function buildQuestionRun(request: QuestionReasoningRequest): TraceroRun {
   const windowMinutes = Math.round(request.context_window_seconds / 60)
 
   return {
-    ...currentRun,
+    ...mockCurrentRun,
     run_id: runId,
     event_type: '用户提问事件',
     trigger_time: occurredAt,
@@ -163,38 +178,120 @@ function buildLatencyMetrics(startedAt: number): LatencyMetrics {
   }
 }
 
+function buildLiveLatencyMetrics(startedAt: number): LatencyMetrics {
+  const total_ms = Math.round(performance.now() - startedAt)
+  return {
+    agent_push_ms: 0,
+    backend_reasoning_ms: total_ms,
+    frontend_render_ms: 0,
+    total_ms,
+    measured_at: new Date().toISOString(),
+  }
+}
+
+function parseConclusion(output: string): ReasoningConclusion {
+  const lines = output.split(/\r?\n/).map((line) => line.trim())
+  const readSection = (section: string) => {
+    const prefix = `【${section}】`
+    return lines
+      .find((line) => line.startsWith(prefix))
+      ?.slice(prefix.length)
+      .trim()
+  }
+
+  const fact = readSection('事实')
+  const reasoning = readSection('推理')
+  const suggestion = readSection('建议')
+
+  if (!fact || !reasoning || !suggestion) {
+    throw new Error('后端推理结果缺少【事实】【推理】或【建议】')
+  }
+
+  return { fact, reasoning, suggestion }
+}
+
+function toTraceroRun(response: ReasoningApiResponse): TraceroRun {
+  return {
+    ...mockCurrentRun,
+    run_id: response.run_id,
+    event_type:
+      response.evidence_type === 'navigation_failed'
+        ? '导航失败'
+        : mockCurrentRun.event_type,
+    trigger_time: formatTime(response.created_at),
+    status: response.verified ? 'done' : 'failed',
+    conclusion: parseConclusion(response.output),
+  }
+}
+
 export async function getCurrentRun(): Promise<TraceroRun> {
   if (USE_MOCK) {
     await wait(120)
-    return currentRun
+    return mockCurrentRun
   }
 
-  const payload = await requestJson<TraceroRun | { data: TraceroRun }>(
-    endpoints.currentRun
+  const { runs } = await requestJson<RunsApiResponse>(endpoints.runs)
+  const latestRun = runs[0]
+  if (!latestRun) {
+    throw new Error('后端暂无推理记录，请先运行 TC-01')
+  }
+
+  const run = await requestJson<ReasoningApiResponse>(
+    `${endpoints.runs}/${encodeURIComponent(latestRun.run_id)}`
   )
-  return unwrap(payload)
+  return toTraceroRun(run)
 }
 
 export async function simulateTc01AgentPush(): Promise<SimulatedAgentPushResult> {
+  const startedAt = performance.now()
   if (!USE_MOCK) {
-    const payload = await requestJson<
-      SimulatedAgentPushResult | { data: SimulatedAgentPushResult }
-    >(endpoints.reasoning, {
-      method: 'POST',
-      body: JSON.stringify({ trigger: 'manual', event_id: 'tc-01' }),
+    const reasoningRequest = {
+      evidence_type: 'navigation_failed',
+      evidence: mockCurrentRun.evidence.map((item) => ({
+        evidence_id: item.evidence_id,
+        type: item.type,
+        content: [item.title, item.source, item.excerpt, item.impact].join(
+          '；'
+        ),
+      })),
+    }
+    const response = await requestJson<ReasoningApiResponse>(
+      endpoints.reasoning,
+      {
+        method: 'POST',
+        body: JSON.stringify(reasoningRequest),
+      }
+    )
+
+    if (!response.verified) {
+      throw new Error(response.errors.join('；') || '后端推理结果校验失败')
+    }
+
+    const run = toTraceroRun({
+      ...response,
+      evidence_type: reasoningRequest.evidence_type,
     })
-    return unwrap(payload)
+    return {
+      evidencePackage: {
+        ...buildEvidencePackage(run),
+        run_id: response.run_id,
+        received_at: response.created_at,
+        source: 'agent',
+      },
+      run,
+      conclusion: run.conclusion,
+      latency: buildLiveLatencyMetrics(startedAt),
+    }
   }
 
-  const startedAt = performance.now()
   await wait(MOCK_AGENT_PUSH_MS)
-  const evidencePackage = buildEvidencePackage(currentRun)
+  const evidencePackage = buildEvidencePackage(mockCurrentRun)
   await wait(MOCK_BACKEND_REASONING_MS)
 
   return {
     evidencePackage,
-    run: currentRun,
-    conclusion: currentRun.conclusion,
+    run: mockCurrentRun,
+    conclusion: mockCurrentRun.conclusion,
     latency: buildLatencyMetrics(startedAt),
   }
 }

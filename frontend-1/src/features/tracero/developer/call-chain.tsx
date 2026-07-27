@@ -102,13 +102,13 @@ export function CallChain({
                         {node.detail}
                       </span>
                       <span className='mt-1.5 flex flex-wrap gap-1'>
-                        {node.evidenceIds.map((evidenceId) => (
+                        {node.evidence_ids.map((evidence_id) => (
                           <Badge
-                            key={evidenceId}
+                            key={evidence_id}
                             variant='outline'
                             className='h-5 px-1.5 text-[9px]'
                           >
-                            {evidenceId}
+                            {evidence_id}
                           </Badge>
                         ))}
                         {node.elapsedMs !== undefined && (

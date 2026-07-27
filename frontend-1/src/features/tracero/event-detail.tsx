@@ -27,8 +27,8 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { sendChatMessage } from './api'
-import { useTraceroChatStore } from './chat-store'
-import { currentRun, type TimelineLevel } from './mock-data'
+import { type ChatMessage, useTraceroChatStore } from './chat-store'
+import { mockCurrentRun, type TimelineLevel } from './mock-data'
 import type { AgentPushStatus, TraceroRun } from './types'
 
 const timelineStyles: Record<TimelineLevel, string> = {
@@ -41,14 +41,18 @@ const timelineStyles: Record<TimelineLevel, string> = {
     'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/35 dark:text-emerald-300',
 }
 
+const EMPTY_CHAT_MESSAGES: ChatMessage[] = []
+
 export function EventDetailPage() {
   const navigate = useNavigate()
   const tracero = useTracero()
-  const run: TraceroRun = tracero.currentRun ?? currentRun
+  const run: TraceroRun = tracero.currentRun ?? mockCurrentRun
   const [inputValue, setInputValue] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [chatError, setChatError] = useState<string | null>(null)
-  const messages = useTraceroChatStore((state) => state.getMessages(run.run_id))
+  const messages = useTraceroChatStore(
+    (state) => state.conversations[run.run_id] ?? EMPTY_CHAT_MESSAGES
+  )
   const addMessage = useTraceroChatStore((state) => state.addMessage)
 
   async function handleSend(event?: React.FormEvent) {
@@ -347,50 +351,171 @@ function ReasoningStatusBar({
   return (
     <section
       className={cn(
-        'flex shrink-0 flex-col gap-3 rounded-lg border bg-background/95 p-3 shadow-sm lg:flex-row lg:items-center',
+        'relative flex shrink-0 flex-col gap-4 overflow-hidden rounded-lg border bg-background/95 p-3 shadow-sm',
         status === 'done' &&
-          'border-violet-300 bg-violet-50/60 dark:bg-violet-950/20',
+          'border-violet-300 bg-gradient-to-r from-blue-50/80 via-background to-violet-50/80 dark:border-violet-800 dark:from-blue-950/30 dark:via-background dark:to-violet-950/30',
         status === 'failed' &&
           'border-rose-300 bg-rose-50/60 dark:bg-rose-950/20'
       )}
     >
-      <div className='flex items-center gap-3'>
-        <div className='flex size-11 shrink-0 items-center justify-center rounded-full border bg-background'>
-          {isBusy ? (
-            <Loader2 className='size-5 animate-spin text-violet-600' />
-          ) : status === 'done' ? (
-            <CheckCircle2 className='size-5 text-emerald-600' />
-          ) : (
-            <Timer className='size-5 text-violet-600' />
-          )}
-        </div>
-        <div>
-          <div className='flex flex-wrap items-center gap-2'>
-            <h2 className='font-semibold'>{labels[status]}</h2>
-            {latencyMs !== undefined && (
-              <Badge variant='secondary' className='font-mono'>
-                E2E {latencyMs}ms
-              </Badge>
+      {status === 'done' && (
+        <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(124,58,237,0.14),transparent_34%)]' />
+      )}
+
+      <div className='relative flex flex-col gap-3 lg:flex-row lg:items-center'>
+        <div className='flex min-w-0 items-center gap-3'>
+          <div
+            className={cn(
+              'flex size-11 shrink-0 items-center justify-center rounded-full border bg-background',
+              status === 'done' &&
+                'reasoning-success-halo border-violet-300 bg-violet-50 text-violet-600 dark:border-violet-700 dark:bg-violet-950/70'
+            )}
+          >
+            {isBusy ? (
+              <Loader2 className='size-5 animate-spin text-violet-600' />
+            ) : status === 'done' ? (
+              <CheckCircle2 className='size-5' />
+            ) : (
+              <Timer className='size-5 text-violet-600' />
             )}
           </div>
-          <p className='mt-0.5 text-sm text-muted-foreground'>
-            {descriptions[status]}
-          </p>
-          {error && <p className='mt-1 text-xs text-destructive'>{error}</p>}
+          <div className='min-w-0'>
+            <div className='flex flex-wrap items-center gap-2'>
+              <h2 className='font-semibold'>{labels[status]}</h2>
+              {status === 'done' && (
+                <Badge className='border-violet-200 bg-violet-100 text-violet-700 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950 dark:text-violet-300'>
+                  链路已打通
+                </Badge>
+              )}
+              {latencyMs !== undefined && (
+                <Badge variant='secondary' className='font-mono'>
+                  E2E {latencyMs}ms
+                </Badge>
+              )}
+            </div>
+            <p className='mt-0.5 text-sm text-muted-foreground'>
+              {descriptions[status]}
+            </p>
+            {error && <p className='mt-1 text-xs text-destructive'>{error}</p>}
+          </div>
         </div>
+        {showManualTrigger && (
+          <Button
+            type='button'
+            size='sm'
+            className='lg:ml-auto'
+            disabled={isRunning}
+            onClick={() => void onRun()}
+          >
+            {isRunning ? <Loader2 className='animate-spin' /> : <PlayCircle />}
+            发起推理
+          </Button>
+        )}
       </div>
-      {showManualTrigger && (
-        <Button
-          type='button'
-          size='sm'
-          className='lg:ml-auto'
-          disabled={isRunning}
-          onClick={() => void onRun()}
-        >
-          {isRunning ? <Loader2 className='animate-spin' /> : <PlayCircle />}
-          发起推理
-        </Button>
-      )}
+
+      <ReasoningProgressChain status={status} />
     </section>
+  )
+}
+
+const reasoningSteps = [
+  { key: 'receiving', label: '事件接收' },
+  { key: 'reasoning', label: '推理分析' },
+  { key: 'done', label: '结果生成' },
+] as const
+
+function ReasoningProgressChain({ status }: { status: AgentPushStatus }) {
+  const activeStep =
+    status === 'done'
+      ? 3
+      : status === 'reasoning'
+        ? 2
+        : status === 'receiving'
+          ? 1
+          : 0
+  const progress =
+    status === 'done'
+      ? 100
+      : status === 'reasoning'
+        ? 62
+        : status === 'receiving'
+          ? 18
+          : 0
+
+  return (
+    <div
+      className='relative px-1 pt-1 pb-0.5 sm:px-3'
+      role='progressbar'
+      aria-label='推理链路进度'
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={progress}
+      aria-valuetext={status === 'done' ? '链路已打通' : undefined}
+    >
+      <div className='absolute top-[17px] right-[16.66%] left-[16.66%] h-1 overflow-hidden rounded-full bg-muted shadow-inner'>
+        <div
+          className={cn(
+            'reasoning-progress-fill relative h-full rounded-full transition-[width] duration-700 ease-out',
+            status === 'failed'
+              ? 'bg-rose-500'
+              : status === 'done'
+                ? 'reasoning-progress-complete bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500'
+                : 'bg-gradient-to-r from-violet-600 to-cyan-400',
+            (status === 'receiving' || status === 'reasoning') &&
+              'reasoning-progress-running'
+          )}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+
+      <div className='relative grid grid-cols-3'>
+        {reasoningSteps.map((step, index) => {
+          const stepNumber = index + 1
+          const isComplete = activeStep >= stepNumber
+          const isCurrent =
+            status !== 'done' &&
+            status !== 'failed' &&
+            activeStep === stepNumber
+
+          return (
+            <div
+              key={step.key}
+              className='flex min-w-0 flex-col items-center gap-1.5 text-center'
+            >
+              <span
+                className={cn(
+                  'relative z-10 flex size-7 items-center justify-center rounded-full border-2 bg-background text-[11px] font-semibold transition-all duration-500',
+                  isComplete &&
+                    'border-violet-500 bg-violet-600 text-white shadow-[0_0_0_4px_rgba(139,92,246,0.1)]',
+                  status === 'done' &&
+                    'reasoning-success-node border-violet-400 bg-violet-600 shadow-[0_0_0_4px_rgba(139,92,246,0.12),0_0_18px_rgba(99,102,241,0.36)]',
+                  isCurrent && 'ring-4 ring-violet-500/15',
+                  status === 'failed' &&
+                    stepNumber === Math.max(activeStep, 1) &&
+                    'border-rose-500 bg-rose-50 text-rose-600 dark:bg-rose-950'
+                )}
+                style={{ animationDelay: `${index * 140}ms` }}
+              >
+                {isComplete ? (
+                  <CheckCircle2 className='size-4' strokeWidth={2.5} />
+                ) : (
+                  stepNumber
+                )}
+              </span>
+              <span
+                className={cn(
+                  'truncate text-[11px] font-medium text-muted-foreground transition-colors sm:text-xs',
+                  isComplete && 'text-foreground',
+                  status === 'done' &&
+                    'font-semibold text-violet-700 dark:text-violet-300'
+                )}
+              >
+                {step.label}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }

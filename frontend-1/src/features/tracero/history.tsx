@@ -14,7 +14,6 @@ import {
 import type { DateRange } from 'react-day-picker'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ThemeSwitch } from '@/components/theme-switch'
 import { Calendar } from '@/components/ui/calendar'
 import {
   Card,
@@ -46,19 +45,18 @@ import {
 } from '@/components/ui/table'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
+import { ThemeSwitch } from '@/components/theme-switch'
+import {
+  eventSourceLabels,
+  type EventHistoryRecord,
+  useEventHistoryStore,
+} from './event-history-store'
 import {
   roleLabels,
-  runs,
   statusLabels,
   type RunStatus,
   type UserRole,
 } from './mock-data'
-
-const robots = [...new Set(runs.map((run) => run.robot))]
-const robotOptions = [
-  { value: 'all', label: '全部机器人' },
-  ...robots.map((r) => ({ value: r, label: r })),
-]
 
 const statusOptions = [
   { value: 'all', label: '全部状态' },
@@ -91,8 +89,13 @@ function StatusBadge({ status }: { status: RunStatus }) {
   )
 }
 
-function getRunDate(runId: string) {
-  const match = runId.match(/^run_(\d{4})(\d{2})(\d{2})/)
+function getRunDate(run: EventHistoryRecord) {
+  if (run.event_time_iso) {
+    const eventDate = new Date(run.event_time_iso)
+    if (!Number.isNaN(eventDate.getTime())) return eventDate
+  }
+
+  const match = run.run_id.match(/^run_(\d{4})(\d{2})(\d{2})/)
   if (!match) return undefined
   return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
 }
@@ -104,12 +107,23 @@ function formatDateRange(dateRange: DateRange | undefined) {
 }
 
 export function TraceroHistoryPage() {
+  const runs = useEventHistoryStore((state) => state.records)
   const [role, setRole] = useState<UserRole>('general')
   const [keyword, setKeyword] = useState('')
   const [dateRange, setDateRange] = useState<DateRange>()
   const [robotFilter, setRobotFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [runIdFilter, setRunIdFilter] = useState('')
+  const robotOptions = useMemo(
+    () => [
+      { value: 'all', label: '全部机器人' },
+      ...[...new Set(runs.map((run) => run.robot))].map((robot) => ({
+        value: robot,
+        label: robot,
+      })),
+    ],
+    [runs]
+  )
 
   const filteredRuns = useMemo(() => {
     return runs.filter((run) => {
@@ -122,7 +136,7 @@ export function TraceroHistoryPage() {
         !runIdFilter ||
         run.run_id.toLowerCase().includes(runIdFilter.toLowerCase())
 
-      const runDate = getRunDate(run.run_id)
+      const runDate = getRunDate(run)
       const matchTime =
         !dateRange?.from ||
         (Boolean(runDate) &&
@@ -135,7 +149,7 @@ export function TraceroHistoryPage() {
         matchKeyword && matchRunId && matchTime && matchRobot && matchStatus
       )
     })
-  }, [keyword, dateRange, robotFilter, statusFilter, runIdFilter])
+  }, [runs, keyword, dateRange, robotFilter, statusFilter, runIdFilter])
 
   const handleReset = () => {
     setKeyword('')
@@ -209,7 +223,7 @@ export function TraceroHistoryPage() {
           <CardHeader>
             <CardTitle>历史事件</CardTitle>
             <CardDescription>
-              当前使用 mock 数据，字段名按后续 FastAPI 联调预留
+              自动告警与用户主动提问产生的事件会实时汇总到这里
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -314,6 +328,7 @@ export function TraceroHistoryPage() {
                   <TableHead>Run ID</TableHead>
                   <TableHead>时间</TableHead>
                   <TableHead>类型</TableHead>
+                  <TableHead>来源</TableHead>
                   <TableHead>摘要</TableHead>
                   <TableHead>机器人</TableHead>
                   <TableHead>状态</TableHead>
@@ -329,6 +344,17 @@ export function TraceroHistoryPage() {
                       {run.trigger_time}
                     </TableCell>
                     <TableCell>{run.event_type}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          run.trigger_source === 'user_question'
+                            ? 'secondary'
+                            : 'outline'
+                        }
+                      >
+                        {eventSourceLabels[run.trigger_source]}
+                      </Badge>
+                    </TableCell>
                     <TableCell className='max-w-[440px] whitespace-normal'>
                       {run.summary}
                     </TableCell>

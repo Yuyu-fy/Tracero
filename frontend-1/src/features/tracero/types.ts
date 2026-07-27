@@ -1,8 +1,8 @@
-import type { currentRun } from './mock-data'
+import type { mockCurrentRun } from './mock-data'
 
 export type EventTriggerSource = 'automatic' | 'user_question'
 
-export type TraceroRun = typeof currentRun & {
+export type TraceroRun = typeof mockCurrentRun & {
   trigger_source?: EventTriggerSource
   user_question?: string
   context_window_seconds?: number

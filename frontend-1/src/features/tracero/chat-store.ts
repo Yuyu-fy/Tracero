@@ -1,11 +1,11 @@
 import { create } from 'zustand'
-import { currentRun } from './mock-data'
+import { mockCurrentRun } from './mock-data'
 
 export type ChatMessageRole = 'user' | 'assistant'
 
 export type ChatContext = {
   perspective: 'general' | 'dev' | 'test' | 'ops'
-  evidenceId?: string
+  evidence_id?: string
   repository?: string
   commit?: string
   filePath?: string
@@ -25,21 +25,19 @@ export type ChatMessage = {
 
 type ChatState = {
   conversations: Record<string, ChatMessage[]>
-  getMessages: (runId: string) => ChatMessage[]
   addMessage: (runId: string, message: Omit<ChatMessage, 'id'>) => void
 }
 
 const initialConversations: Record<string, ChatMessage[]> = {
-  [currentRun.run_id]: currentRun.chatHistory.map((message, index) => ({
-    id: `${currentRun.run_id}-${index + 1}`,
+  [mockCurrentRun.run_id]: mockCurrentRun.chatHistory.map((message, index) => ({
+    id: `${mockCurrentRun.run_id}-${index + 1}`,
     role: message.role === 'ai' ? 'assistant' : 'user',
     content: message.content,
   })),
 }
 
-export const useTraceroChatStore = create<ChatState>()((set, get) => ({
+export const useTraceroChatStore = create<ChatState>()((set) => ({
   conversations: initialConversations,
-  getMessages: (runId) => get().conversations[runId] ?? [],
   addMessage: (runId, message) =>
     set((state) => {
       const messages = state.conversations[runId] ?? []

@@ -53,14 +53,14 @@ import { Textarea } from '@/components/ui/textarea'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { eventSourceLabels, useEventHistoryStore } from './event-history-store'
 import {
   roleLabels,
-  runs,
-  stats,
   statusLabels,
   type RunStatus,
   type UserRole,
 } from './mock-data'
+import type { EventTriggerSource } from './types'
 
 function StatusBadge({ status }: { status: RunStatus }) {
   const classes: Record<RunStatus, string> = {
@@ -69,6 +69,15 @@ function StatusBadge({ status }: { status: RunStatus }) {
     failed: 'border-red-200 bg-red-100 text-red-800 hover:bg-red-200',
   }
   return <Badge className={classes[status]}>{statusLabels[status]}</Badge>
+}
+
+function SourceBadge({ source }: { source: EventTriggerSource }) {
+  return (
+    <Badge variant={source === 'user_question' ? 'secondary' : 'outline'}>
+      {source === 'user_question' && <MessageSquareText />}
+      {eventSourceLabels[source]}
+    </Badge>
+  )
 }
 
 function toLocalDateTimeInput(date: Date) {
@@ -86,7 +95,17 @@ export function TraceroDashboardPage() {
     toLocalDateTimeInput(new Date())
   )
   const [contextWindow, setContextWindow] = useState('60')
+  const runs = useEventHistoryStore((state) => state.records)
   const recentRuns = runs.slice(0, 5)
+  const stats = runs.reduce(
+    (result, run) => {
+      if (run.status === 'reasoning') result.reasoning += 1
+      if (run.status === 'done') result.completed += 1
+      if (run.status === 'failed') result.failed += 1
+      return result
+    },
+    { reasoning: 0, completed: 0, failed: 0 }
+  )
 
   function handleQuestionSubmit(event: FormEvent) {
     event.preventDefault()
@@ -156,9 +175,7 @@ export function TraceroDashboardPage() {
               </div>
               <div>
                 <div className='mb-2 flex flex-wrap items-center gap-2'>
-                  <h2 className='text-lg font-semibold'>
-                    发起事件推理
-                  </h2>
+                  <h2 className='text-lg font-semibold'>发起事件推理</h2>
                   <Badge variant='secondary'>提前分析</Badge>
                 </div>
                 <p className='max-w-3xl text-sm leading-6 text-muted-foreground'>
@@ -302,6 +319,7 @@ export function TraceroDashboardPage() {
                 <TableRow>
                   <TableHead>时间</TableHead>
                   <TableHead>类型</TableHead>
+                  <TableHead>来源</TableHead>
                   <TableHead>摘要</TableHead>
                   <TableHead>机器人</TableHead>
                   <TableHead>状态</TableHead>
@@ -314,6 +332,9 @@ export function TraceroDashboardPage() {
                       {run.trigger_time}
                     </TableCell>
                     <TableCell>{run.event_type}</TableCell>
+                    <TableCell>
+                      <SourceBadge source={run.trigger_source} />
+                    </TableCell>
                     <TableCell className='max-w-[420px] whitespace-normal'>
                       {run.summary}
                     </TableCell>

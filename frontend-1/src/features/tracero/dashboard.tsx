@@ -40,8 +40,8 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import {
   roleLabels,
-  runs,
-  stats,
+  mockRuns,
+  mockStats,
   statusLabels,
   type RunStatus,
   type UserRole,
@@ -73,7 +73,7 @@ function StatusBadge({ status }: { status: RunStatus }) {
 
 export function TraceroDashboardPage() {
   const [role, setRole] = useState<UserRole>('general')
-  const recentRuns = runs.slice(0, 5)
+  const recentRuns = mockRuns.slice(0, 5)
 
   return (
     <div className='flex h-full flex-col'>
@@ -138,7 +138,7 @@ export function TraceroDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className='text-3xl font-bold text-black dark:text-blue-300'>
-                {stats.reasoning}
+                {mockStats.reasoning}
               </div>
               <p className='text-xs text-black dark:text-blue-100'>
                 正在分析异常证据链
@@ -155,7 +155,7 @@ export function TraceroDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className='text-3xl font-bold text-black dark:text-green-300'>
-                {stats.completed}
+                {mockStats.completed}
               </div>
               <p className='text-xs text-black dark:text-green-200/80'>
                 可在历史记录中回看
@@ -172,7 +172,7 @@ export function TraceroDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className='text-3xl font-bold text-black dark:text-red-300'>
-                {stats.failed}
+                {mockStats.failed}
               </div>
               <p className='text-xs text-black dark:text-red-200/80'>
                 需要补齐数据或重新触发

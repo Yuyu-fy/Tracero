@@ -103,3 +103,105 @@
     height: 0;
   }
 }
+
+@keyframes reasoning-progress-shimmer {
+  from {
+    transform: translateX(-140%);
+  }
+  to {
+    transform: translateX(260%);
+  }
+}
+
+@keyframes reasoning-progress-reveal {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes reasoning-success-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes reasoning-success-halo {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.75);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.85);
+  }
+}
+
+.reasoning-progress-fill {
+  transform-origin: left center;
+}
+
+.reasoning-progress-running::after {
+  position: absolute;
+  inset: 0;
+  width: 38%;
+  content: '';
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 78%),
+    transparent
+  );
+  animation: reasoning-progress-shimmer 1.35s linear infinite;
+}
+
+.reasoning-progress-complete {
+  animation: reasoning-progress-reveal 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reasoning-success-node {
+  animation: reasoning-success-pop 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reasoning-success-halo {
+  position: relative;
+  box-shadow:
+    0 0 0 5px rgb(124 58 237 / 10%),
+    0 0 24px rgb(99 102 241 / 36%);
+}
+
+.reasoning-success-halo::before,
+.reasoning-success-halo::after {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgb(124 58 237 / 52%);
+  border-radius: 9999px;
+  pointer-events: none;
+  content: '';
+  animation: reasoning-success-halo 1.8s ease-out infinite;
+}
+
+.reasoning-success-halo::after {
+  animation-delay: 900ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reasoning-progress-running::after,
+  .reasoning-progress-complete,
+  .reasoning-success-node,
+  .reasoning-success-halo::before,
+  .reasoning-success-halo::after {
+    animation: none;
+  }
+}

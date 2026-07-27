@@ -8,12 +8,6 @@ import type {
   UserRole,
 } from '@/features/tracero/types'
 
-export interface Message {
-  id: number
-  role: 'user' | 'ai'
-  content: string
-}
-
 export interface TraceroContextType {
   role: UserRole
   setRole: (role: UserRole) => void
@@ -29,9 +23,6 @@ export interface TraceroContextType {
   isSimulating: boolean
   loadCurrentRun: () => Promise<void>
   simulateTc01Push: () => Promise<void>
-  messages: Message[]
-  addMessage: (message: Message) => void
-  resetChat: () => void
 }
 
 export const TraceroContext = createContext<TraceroContextType | null>(null)

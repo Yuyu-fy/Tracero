@@ -9,12 +9,12 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import type { currentRun } from '../mock-data'
+import type { mockCurrentRun } from '../mock-data'
 import { CallChain } from './call-chain'
 import { CodeViewer } from './code-viewer'
 
-type DeveloperAnalysis = typeof currentRun.developerAnalysis
-type Conclusion = typeof currentRun.conclusion
+type DeveloperAnalysis = typeof mockCurrentRun.developerAnalysis
+type Conclusion = typeof mockCurrentRun.conclusion
 export type DeveloperTab = 'code' | 'parameters' | 'logs' | 'runtime'
 
 type DeveloperViewProps = {
@@ -74,7 +74,7 @@ export function DeveloperView({
               </Badge>
             )}
             <Badge className='bg-indigo-600 text-white hover:bg-indigo-600'>
-              {selectedLocation.evidenceId} · {selectedLocation.module}
+              {selectedLocation.evidence_id} · {selectedLocation.module}
             </Badge>
           </div>
           </div>
@@ -83,21 +83,21 @@ export function DeveloperView({
           <ConclusionItem
             label='事实'
             content={conclusion.fact}
-            evidenceId='E-03'
+            evidence_id='E-03'
             tone='blue'
             onClick={() => onSelectLocation('LOC-E03')}
           />
           <ConclusionItem
             label='推理'
             content={conclusion.reasoning}
-            evidenceId='E-02'
+            evidence_id='E-02'
             tone='violet'
             onClick={() => onSelectLocation('LOC-E02')}
           />
           <ConclusionItem
             label='建议'
             content={conclusion.suggestion}
-            evidenceId='E-04'
+            evidence_id='E-04'
             tone='cyan'
             onClick={() => onSelectLocation('LOC-E04')}
           />
@@ -180,7 +180,7 @@ export function DeveloperView({
                       </span>
                     </span>
                     <Badge className='bg-indigo-100 font-mono text-indigo-800 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-200'>
-                      {parameter.evidenceId}
+                      {parameter.evidence_id}
                     </Badge>
                   </Button>
                 ))}
@@ -259,13 +259,13 @@ export function DeveloperView({
 function ConclusionItem({
   label,
   content,
-  evidenceId,
+  evidence_id,
   tone,
   onClick,
 }: {
   label: string
   content: string
-  evidenceId: string
+  evidence_id: string
   tone: 'blue' | 'violet' | 'cyan'
   onClick: () => void
 }) {
@@ -284,9 +284,9 @@ function ConclusionItem({
           type='button'
           onClick={onClick}
           className='rounded border border-current/20 bg-white/45 px-1.5 py-0.5 font-mono text-[9px] hover:bg-white/80'
-          title={`定位 ${evidenceId}`}
+          title={`定位 ${evidence_id}`}
         >
-          {evidenceId}
+          {evidence_id}
         </button>
       </div>
       <p className='mt-1.5 line-clamp-3 text-[11px] leading-5'>{content}</p>

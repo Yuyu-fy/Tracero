@@ -6,7 +6,7 @@ export type CodeLanguage = 'cpp' | 'yaml' | 'log'
 
 export type CodeLocation = {
   id: string
-  evidenceId: string
+  evidence_id: string
   repository: string
   commit: string
   module: string
@@ -27,7 +27,7 @@ export type CallChainNode = {
   type: 'topic' | 'module' | 'function' | 'decision'
   status: 'normal' | 'warning' | 'error'
   depth: number
-  evidenceIds: string[]
+  evidence_ids: string[]
   codeLocationId?: string
   elapsedMs?: number
 }
@@ -38,7 +38,7 @@ export type ParameterEvidence = {
   recommendedValue: string
   filePath: string
   line: number
-  evidenceId: string
+  evidence_id: string
   codeLocationId: string
 }
 
@@ -47,7 +47,7 @@ export type LogEvidence = {
   level: 'INFO' | 'WARN' | 'ERROR'
   source: string
   message: string
-  evidenceId: string
+  evidence_id: string
   codeLocationId?: string
 }
 
@@ -56,7 +56,7 @@ export type TestModuleAttribution = {
   responsibility: string
   confidence: number
   relation: 'primary' | 'related'
-  evidenceIds: string[]
+  evidence_ids: string[]
 }
 
 export type TestCase = {
@@ -81,13 +81,13 @@ export type TestTask = {
   status: '待创建' | '待处理' | '进行中' | '已完成'
 }
 
-export const stats = {
+export const mockStats = {
   reasoning: 1,
   completed: 5,
   failed: 0,
 }
 
-export const runs = [
+export const mockRuns = [
   {
     run_id: 'run_20260527_143207',
     event_type: '导航失败',
@@ -138,7 +138,7 @@ export const runs = [
   },
 ]
 
-export const currentRun = {
+export const mockCurrentRun = {
   run_id: 'run_20260527_143207',
   event_type: '导航失败',
   trigger_time: '14:32:07',
@@ -186,7 +186,7 @@ export const currentRun = {
   ],
   evidence: [
     {
-      id: 'E-01',
+      evidence_id: 'E-01',
       type: 'metric' as EvidenceType,
       title: 'costmap 更新时间差',
       source: 'telemetry/costmap_latency',
@@ -194,7 +194,7 @@ export const currentRun = {
       impact: '关键指标超过阈值，证明局部代价地图存在明显更新延迟。',
     },
     {
-      id: 'E-02',
+      evidence_id: 'E-02',
       type: 'code' as EvidenceType,
       title: '速度控制读取旧地图',
       source: 'controller_server.cpp:387',
@@ -202,7 +202,7 @@ export const currentRun = {
       impact: '速度指令生成依赖 costmap 快照，延迟会直接影响刹停决策。',
     },
     {
-      id: 'E-03',
+      evidence_id: 'E-03',
       type: 'log' as EvidenceType,
       title: '障碍物进入管线但未及时生效',
       source: 'nav2_controller.log',
@@ -211,7 +211,7 @@ export const currentRun = {
       impact: '日志与遥测时间线吻合，支持“数据已到达但地图未刷新”的判断。',
     },
     {
-      id: 'E-04',
+      evidence_id: 'E-04',
       type: 'config' as EvidenceType,
       title: '更新频率偏低',
       source: 'nav2_params.yaml:23',
@@ -231,7 +231,7 @@ export const currentRun = {
         type: 'topic' as const,
         status: 'normal' as const,
         depth: 0,
-        evidenceIds: ['E-03'],
+        evidence_ids: ['E-03'],
         elapsedMs: 0,
       },
       {
@@ -241,7 +241,7 @@ export const currentRun = {
         type: 'function' as const,
         status: 'normal' as const,
         depth: 1,
-        evidenceIds: ['E-03'],
+        evidence_ids: ['E-03'],
         elapsedMs: 18,
       },
       {
@@ -251,7 +251,7 @@ export const currentRun = {
         type: 'function' as const,
         status: 'warning' as const,
         depth: 2,
-        evidenceIds: ['E-01', 'E-04'],
+        evidence_ids: ['E-01', 'E-04'],
         codeLocationId: 'LOC-E04',
         elapsedMs: 340,
       },
@@ -262,7 +262,7 @@ export const currentRun = {
         type: 'function' as const,
         status: 'error' as const,
         depth: 3,
-        evidenceIds: ['E-02', 'E-03'],
+        evidence_ids: ['E-02', 'E-03'],
         codeLocationId: 'LOC-E02',
         elapsedMs: 356,
       },
@@ -273,7 +273,7 @@ export const currentRun = {
         type: 'decision' as const,
         status: 'error' as const,
         depth: 4,
-        evidenceIds: ['E-02'],
+        evidence_ids: ['E-02'],
         codeLocationId: 'LOC-E02',
         elapsedMs: 372,
       },
@@ -281,7 +281,7 @@ export const currentRun = {
     codeLocations: [
       {
         id: 'LOC-E02',
-        evidenceId: 'E-02',
+        evidence_id: 'E-02',
         repository: 'navigation2',
         commit: '9d6f7ab',
         module: 'nav2_controller',
@@ -321,7 +321,7 @@ export const currentRun = {
       },
       {
         id: 'LOC-E04',
-        evidenceId: 'E-04',
+        evidence_id: 'E-04',
         repository: 'tracero_robot_config',
         commit: '4bc813e',
         module: 'nav2_bringup',
@@ -353,7 +353,7 @@ export const currentRun = {
       },
       {
         id: 'LOC-E03',
-        evidenceId: 'E-03',
+        evidence_id: 'E-03',
         repository: 'robot_001_runtime',
         commit: 'run_20260527_143207',
         module: 'nav2_controller',
@@ -381,7 +381,7 @@ export const currentRun = {
         recommendedValue: '10.0 Hz',
         filePath: 'config/nav2_params.yaml',
         line: 23,
-        evidenceId: 'E-04',
+        evidence_id: 'E-04',
         codeLocationId: 'LOC-E04',
       },
       {
@@ -390,7 +390,7 @@ export const currentRun = {
         recommendedValue: '20.0 Hz（保持）',
         filePath: 'config/nav2_params.yaml',
         line: 61,
-        evidenceId: 'E-02',
+        evidence_id: 'E-02',
         codeLocationId: 'LOC-E02',
       },
     ] satisfies ParameterEvidence[],
@@ -400,7 +400,7 @@ export const currentRun = {
         level: 'WARN' as const,
         source: 'local_costmap',
         message: 'map update pending age_ms=340',
-        evidenceId: 'E-03',
+        evidence_id: 'E-03',
         codeLocationId: 'LOC-E03',
       },
       {
@@ -408,7 +408,7 @@ export const currentRun = {
         level: 'ERROR' as const,
         source: 'safety_monitor',
         message: 'stale costmap used for cmd_vel',
-        evidenceId: 'E-02',
+        evidence_id: 'E-02',
         codeLocationId: 'LOC-E02',
       },
     ] satisfies LogEvidence[],
@@ -440,21 +440,21 @@ export const currentRun = {
         responsibility: '读取 Costmap 快照并生成速度指令，是异常行为的直接发生模块。',
         confidence: 92,
         relation: 'primary' as const,
-        evidenceIds: ['E-02', 'E-03'],
+        evidence_ids: ['E-02', 'E-03'],
       },
       {
         module: 'local_costmap',
         responsibility: '地图更新周期超过安全阈值，向控制器提供了过期快照。',
         confidence: 86,
         relation: 'related' as const,
-        evidenceIds: ['E-01', 'E-04'],
+        evidence_ids: ['E-01', 'E-04'],
       },
       {
         module: 'obstacle_layer',
         responsibility: '障碍物观测已进入缓冲区，需要验证数据写入和地图刷新之间的时序。',
         confidence: 74,
         relation: 'related' as const,
-        evidenceIds: ['E-03'],
+        evidence_ids: ['E-03'],
       },
     ] satisfies TestModuleAttribution[],
     testCases: [

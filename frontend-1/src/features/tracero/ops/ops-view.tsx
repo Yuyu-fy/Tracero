@@ -26,9 +26,9 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import type { currentRun } from '../mock-data'
+import type { mockCurrentRun } from '../mock-data'
 
-type OpsAnalysis = typeof currentRun.opsAnalysis
+type OpsAnalysis = typeof mockCurrentRun.opsAnalysis
 
 const metricStyles = {
   critical:

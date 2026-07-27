@@ -10,7 +10,12 @@ import {
   simulateTc01AgentPush,
   startQuestionReasoning,
 } from '@/features/tracero/api'
-import { currentRun as mockCurrentRun } from '@/features/tracero/mock-data'
+import {
+  questionHistoryRecord,
+  questionHistoryRunId,
+  useEventHistoryStore,
+} from '@/features/tracero/event-history-store'
+import { mockCurrentRun } from '@/features/tracero/mock-data'
 import type {
   AgentPushStatus,
   DeveloperTab,
@@ -20,7 +25,7 @@ import type {
   TraceroRun,
   UserRole,
 } from '@/features/tracero/types'
-import { TraceroContext, type Message } from './tracero-context'
+import { TraceroContext } from './tracero-context'
 
 type TraceroProviderProps = {
   children: ReactNode
@@ -52,15 +57,16 @@ export function TraceroProvider({
   const [latency, setLatency] = useState<LatencyMetrics | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isSimulating, setIsSimulating] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
 
   const loadCurrentRun = useCallback(async () => {
     setError(null)
     try {
       const run = await getCurrentRun()
       setCurrentRun(run)
-    } catch {
-      setError('当前推理事件加载失败')
+      setPushStatus(run.status === 'done' ? 'done' : 'failed')
+      useEventHistoryStore.getState().upsertRun(run)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : '当前推理事件加载失败')
       setPushStatus('failed')
     }
   }, [])
@@ -75,6 +81,9 @@ export function TraceroProvider({
 
     let active = true
     const reasonFromQuestion = async () => {
+      const historyStore = useEventHistoryStore.getState()
+      const pendingRunId = questionHistoryRunId(initialQuestionRequest)
+      historyStore.upsertRecord(questionHistoryRecord(initialQuestionRequest))
       setIsSimulating(true)
       setError(null)
       setLatency(null)
@@ -88,8 +97,17 @@ export function TraceroProvider({
         setCurrentRun(result.run)
         setLatency(result.latency)
         setPushStatus('done')
+        useEventHistoryStore.getState().upsertRun(result.run, {
+          eventTimeIso: initialQuestionRequest.occurred_at,
+          previousRunId: pendingRunId,
+          summary: initialQuestionRequest.question,
+        })
       } catch (error) {
         if (!active) return
+        useEventHistoryStore.getState().upsertRecord({
+          ...questionHistoryRecord(initialQuestionRequest),
+          status: 'failed',
+        })
         setError(
           error instanceof Error
             ? error.message
@@ -122,6 +140,7 @@ export function TraceroProvider({
       setCurrentRun(result.run)
       setLatency(result.latency)
       setPushStatus('done')
+      useEventHistoryStore.getState().upsertRun(result.run)
     } catch {
       setError('TC-01 模拟推送失败，请重试')
       setPushStatus('failed')
@@ -129,14 +148,6 @@ export function TraceroProvider({
       setIsSimulating(false)
     }
   }, [isSimulating])
-
-  const addMessage = useCallback((message: Message) => {
-    setMessages((prev) => [...prev, message])
-  }, [])
-
-  const resetChat = useCallback(() => {
-    setMessages([])
-  }, [])
 
   const value = useMemo(
     () => ({
@@ -154,9 +165,6 @@ export function TraceroProvider({
       isSimulating,
       loadCurrentRun,
       simulateTc01Push,
-      messages,
-      addMessage,
-      resetChat,
     }),
     [
       role,
@@ -170,9 +178,6 @@ export function TraceroProvider({
       isSimulating,
       loadCurrentRun,
       simulateTc01Push,
-      messages,
-      addMessage,
-      resetChat,
     ]
   )
 
