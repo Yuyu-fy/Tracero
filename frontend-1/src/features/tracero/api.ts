@@ -19,21 +19,50 @@ const API_BASE_URL = (import.meta.env.VITE_TRACERO_API_BASE_URL ?? '').replace(
 const USE_MOCK = import.meta.env.VITE_TRACERO_USE_MOCK !== 'false'
 
 const endpoints = {
-  reasoning: import.meta.env.VITE_TRACERO_REASONING_PATH ?? '/api/debug/reason',
-  questionReasoning:
-    import.meta.env.VITE_TRACERO_QUESTION_REASONING_PATH ??
-    '/tracero/reasoning/question',
-  chat: import.meta.env.VITE_TRACERO_CHAT_PATH ?? '/tracero/chat',
+  reasoning: import.meta.env.VITE_TRACERO_REASONING_PATH ?? '/api/reason',
   runs: import.meta.env.VITE_TRACERO_RUNS_PATH ?? '/api/runs',
+}
+
+type ReasonTriggerApiRequest = {
+  trigger_type: 'navigation_failed' | 'user_question' | 'follow_up_question'
+  robot: string
+  occurred_at: string
+  context_window_seconds: number
+  question?: string
+  run_id?: string
+  history?: ChatApiRequest['history']
+  context?: ChatApiRequest['context']
 }
 
 type ReasoningApiResponse = {
   run_id: string
-  evidence_type?: string
-  output: string
+  trigger_type: string
+  event_type: string
+  evidence_type: string
+  provider_type: 'demo' | 'robot' | 'direct' | 'legacy'
+  data_source: 'demo' | 'robot' | 'direct' | 'legacy'
+  robot: string
+  occurred_at: string
+  context_window_seconds?: number | null
+  question?: string | null
+  output?: string
   status: 'completed' | 'verification_failed'
   verified: boolean
+  conclusion: ReasoningConclusion | null
+  evidence?: Array<{
+    evidence_id: string
+    type: string
+    content: string
+    occurred_at: string
+  }>
   errors: string[]
+  error_code:
+    | 'PROVIDER_UNAVAILABLE'
+    | 'EVIDENCE_NOT_FOUND'
+    | 'MODEL_REQUEST_FAILED'
+    | 'OUTPUT_VERIFICATION_FAILED'
+    | 'DATABASE_WRITE_FAILED'
+    | null
   valid_evidence_ids: string[]
   created_at: string
 }
@@ -133,23 +162,26 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
-    const detail = await response.text()
+    const responseText = await response.text()
+    let detail = responseText
+    try {
+      const errorPayload = JSON.parse(responseText) as {
+        detail?: string | { error_code?: string; message?: string }
+      }
+      if (typeof errorPayload.detail === 'string') {
+        detail = errorPayload.detail
+      } else if (errorPayload.detail) {
+        detail = [errorPayload.detail.error_code, errorPayload.detail.message]
+          .filter(Boolean)
+          .join('：')
+      }
+    } catch {
+      // 非 JSON 响应（例如临时隧道的 503 页面）直接保留原文。
+    }
     throw new Error(detail || `Tracero API 请求失败 (${response.status})`)
   }
 
   return response.json() as Promise<T>
-}
-
-function unwrap<T>(payload: T | { data: T }): T {
-  if (
-    payload &&
-    typeof payload === 'object' &&
-    'data' in payload &&
-    (payload as { data?: T }).data
-  ) {
-    return (payload as { data: T }).data
-  }
-  return payload as T
 }
 
 function buildEvidencePackage(run: TraceroRun): EvidencePackage {
@@ -189,39 +221,38 @@ function buildLiveLatencyMetrics(startedAt: number): LatencyMetrics {
   }
 }
 
-function parseConclusion(output: string): ReasoningConclusion {
-  const lines = output.split(/\r?\n/).map((line) => line.trim())
-  const readSection = (section: string) => {
-    const prefix = `【${section}】`
-    return lines
-      .find((line) => line.startsWith(prefix))
-      ?.slice(prefix.length)
-      .trim()
-  }
-
-  const fact = readSection('事实')
-  const reasoning = readSection('推理')
-  const suggestion = readSection('建议')
-
-  if (!fact || !reasoning || !suggestion) {
-    throw new Error('后端推理结果缺少【事实】【推理】或【建议】')
-  }
-
-  return { fact, reasoning, suggestion }
-}
-
 function toTraceroRun(response: ReasoningApiResponse): TraceroRun {
+  if (!response.conclusion) {
+    throw new Error(
+      `${response.error_code ?? 'OUTPUT_VERIFICATION_FAILED'}：后端未返回结构化结论`
+    )
+  }
   return {
     ...mockCurrentRun,
     run_id: response.run_id,
-    event_type:
-      response.evidence_type === 'navigation_failed'
-        ? '导航失败'
-        : mockCurrentRun.event_type,
-    trigger_time: formatTime(response.created_at),
+    event_type: response.event_type,
+    trigger_time: formatTime(response.occurred_at || response.created_at),
     status: response.verified ? 'done' : 'failed',
-    conclusion: parseConclusion(response.output),
+    robot: response.robot,
+    trigger_source:
+      response.trigger_type === 'user_question' ? 'user_question' : 'automatic',
+    user_question: response.question ?? undefined,
+    context_window_seconds: response.context_window_seconds ?? undefined,
+    data_source: response.data_source,
+    conclusion: response.conclusion,
   }
+}
+
+function requireVerifiedResponse(
+  response: ReasoningApiResponse
+): ReasoningApiResponse & { conclusion: ReasoningConclusion } {
+  if (!response.verified || !response.conclusion) {
+    const detail = response.errors.join('；') || '后端推理结果校验失败'
+    throw new Error(
+      response.error_code ? `${response.error_code}：${detail}` : detail
+    )
+  }
+  return response as ReasoningApiResponse & { conclusion: ReasoningConclusion }
 }
 
 export async function getCurrentRun(): Promise<TraceroRun> {
@@ -245,15 +276,11 @@ export async function getCurrentRun(): Promise<TraceroRun> {
 export async function simulateTc01AgentPush(): Promise<SimulatedAgentPushResult> {
   const startedAt = performance.now()
   if (!USE_MOCK) {
-    const reasoningRequest = {
-      evidence_type: 'navigation_failed',
-      evidence: mockCurrentRun.evidence.map((item) => ({
-        evidence_id: item.evidence_id,
-        type: item.type,
-        content: [item.title, item.source, item.excerpt, item.impact].join(
-          '；'
-        ),
-      })),
+    const reasoningRequest: ReasonTriggerApiRequest = {
+      trigger_type: 'navigation_failed',
+      robot: mockCurrentRun.robot,
+      occurred_at: new Date().toISOString(),
+      context_window_seconds: 5,
     }
     const response = await requestJson<ReasoningApiResponse>(
       endpoints.reasoning,
@@ -263,14 +290,9 @@ export async function simulateTc01AgentPush(): Promise<SimulatedAgentPushResult>
       }
     )
 
-    if (!response.verified) {
-      throw new Error(response.errors.join('；') || '后端推理结果校验失败')
-    }
+    requireVerifiedResponse(response)
 
-    const run = toTraceroRun({
-      ...response,
-      evidence_type: reasoningRequest.evidence_type,
-    })
+    const run = toTraceroRun(response)
     return {
       evidencePackage: {
         ...buildEvidencePackage(run),
@@ -300,13 +322,45 @@ export async function startQuestionReasoning(
   request: QuestionReasoningRequest
 ): Promise<SimulatedAgentPushResult> {
   if (!USE_MOCK) {
-    const payload = await requestJson<
-      SimulatedAgentPushResult | { data: SimulatedAgentPushResult }
-    >(endpoints.questionReasoning, {
-      method: 'POST',
-      body: JSON.stringify({ trigger: 'user_question', ...request }),
-    })
-    return unwrap(payload)
+    const startedAt = performance.now()
+    const reasoningRequest: ReasonTriggerApiRequest = {
+      trigger_type: 'user_question',
+      ...request,
+    }
+    const response = requireVerifiedResponse(
+      await requestJson<ReasoningApiResponse>(endpoints.reasoning, {
+        method: 'POST',
+        body: JSON.stringify(reasoningRequest),
+      })
+    )
+    const conclusion = response.conclusion
+    const run: TraceroRun = {
+      ...buildQuestionRun(request),
+      run_id: response.run_id,
+      event_type: response.event_type,
+      trigger_time: formatTime(response.occurred_at),
+      status: 'done',
+      robot: response.robot,
+      data_source: response.data_source,
+      conclusion,
+    }
+
+    return {
+      evidencePackage: {
+        event_id: `question-${response.run_id}`,
+        run_id: response.run_id,
+        event_type: run.event_type,
+        robot: request.robot,
+        trigger_time: run.trigger_time,
+        received_at: response.created_at,
+        source: 'user_question',
+        topic_window_seconds: request.context_window_seconds,
+        trigger_rules: ['用户主动提问', '行为时间窗回溯'],
+      },
+      run,
+      conclusion,
+      latency: buildLiveLatencyMetrics(startedAt),
+    }
   }
 
   const startedAt = performance.now()
@@ -343,21 +397,27 @@ export async function sendChatMessage(
     }
   }
 
-  const payload = await requestJson<
-    | ChatApiResponse
-    | { data: ChatApiResponse }
-    | { answer: string }
-    | { reply: string }
-  >(endpoints.chat, {
-    method: 'POST',
-    body: JSON.stringify(request),
-  })
-  const result = unwrap(payload as ChatApiResponse | { data: ChatApiResponse })
-  const content =
-    result.content ??
-    (result as ChatApiResponse & { answer?: string }).answer ??
-    (result as ChatApiResponse & { reply?: string }).reply
+  const response = requireVerifiedResponse(
+    await requestJson<ReasoningApiResponse>(endpoints.reasoning, {
+      method: 'POST',
+      body: JSON.stringify({
+        trigger_type: 'follow_up_question',
+        robot: request.context.robot,
+        occurred_at: new Date().toISOString(),
+        context_window_seconds: 300,
+        question: request.message,
+        run_id: request.run_id,
+        history: request.history,
+        context: request.context,
+      } satisfies ReasonTriggerApiRequest),
+    })
+  )
 
-  if (!content) throw new Error('AI Chat 接口未返回 content、answer 或 reply')
-  return { content }
+  return {
+    content: [
+      `事实：${response.conclusion.fact}`,
+      `推理：${response.conclusion.reasoning}`,
+      `建议：${response.conclusion.suggestion}`,
+    ].join('\n'),
+  }
 }

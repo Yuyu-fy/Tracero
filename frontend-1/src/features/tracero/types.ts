@@ -6,6 +6,7 @@ export type TraceroRun = typeof mockCurrentRun & {
   trigger_source?: EventTriggerSource
   user_question?: string
   context_window_seconds?: number
+  data_source?: 'demo' | 'robot' | 'direct' | 'legacy'
 }
 export type UserRole = 'general' | 'dev' | 'test' | 'ops'
 export type DeveloperTab = 'code' | 'parameters' | 'logs' | 'runtime'

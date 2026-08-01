@@ -1,0 +1,70 @@
+{
+  "navigation_failed": {
+    "event_type": "导航失败",
+    "evidence_type": "navigation_failed",
+    "evidence": [
+      {
+        "evidence_id": "E-01",
+        "type": "metric",
+        "content": "costmap 更新时间差 avg=212ms、p95=340ms，超过 200ms 阈值。"
+      },
+      {
+        "evidence_id": "E-02",
+        "type": "source_code",
+        "content": "controller_server.cpp:387 生成速度指令时直接读取当前 costmap 快照，没有检查地图时间戳是否过期。"
+      },
+      {
+        "evidence_id": "E-03",
+        "type": "runtime_log",
+        "content": "障碍物观测已经进入缓冲区，但日志显示 map update pending age_ms=340。"
+      },
+      {
+        "evidence_id": "E-04",
+        "type": "configuration",
+        "content": "nav2_params.yaml 中 local_costmap.update_frequency=5.0Hz，理论更新周期为 200ms。"
+      }
+    ]
+  },
+  "user_question": {
+    "event_type": "用户提问事件",
+    "evidence_type": "user_question",
+    "evidence": [
+      {
+        "evidence_id": "E-01",
+        "type": "user_question",
+        "content": "用户询问机器人异常行为。"
+      },
+      {
+        "evidence_id": "E-02",
+        "type": "telemetry",
+        "content": "Demo 遥测显示 yaw_rate 在 18 秒内多次正负切换，但没有触发碰撞告警。"
+      },
+      {
+        "evidence_id": "E-03",
+        "type": "planner_log",
+        "content": "Demo 日志显示狭窄区域内左右候选路径代价接近，局部路径发生多次切换。"
+      }
+    ]
+  },
+  "follow_up_question": {
+    "event_type": "推理追问事件",
+    "evidence_type": "follow_up_question",
+    "evidence": [
+      {
+        "evidence_id": "E-01",
+        "type": "follow_up_question",
+        "content": "用户继续追问当前推理记录。"
+      },
+      {
+        "evidence_id": "E-02",
+        "type": "run_context",
+        "content": "关联当前推理记录。"
+      },
+      {
+        "evidence_id": "E-03",
+        "type": "demo_run_summary",
+        "content": "Demo 推理记录显示 costmap 更新延迟与控制器读取旧地图同时出现。"
+      }
+    ]
+  }
+}

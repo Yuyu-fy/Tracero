@@ -66,7 +66,14 @@ export function TraceroProvider({
       setPushStatus(run.status === 'done' ? 'done' : 'failed')
       useEventHistoryStore.getState().upsertRun(run)
     } catch (error) {
-      setError(error instanceof Error ? error.message : '当前推理事件加载失败')
+      const message =
+        error instanceof Error ? error.message : '当前推理事件加载失败'
+      if (message === '后端暂无推理记录，请先运行 TC-01') {
+        setError(null)
+        setPushStatus('idle')
+        return
+      }
+      setError(message)
       setPushStatus('failed')
     }
   }, [])
@@ -141,8 +148,10 @@ export function TraceroProvider({
       setLatency(result.latency)
       setPushStatus('done')
       useEventHistoryStore.getState().upsertRun(result.run)
-    } catch {
-      setError('TC-01 模拟推送失败，请重试')
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : 'TC-01 模拟推送失败，请重试'
+      )
       setPushStatus('failed')
     } finally {
       setIsSimulating(false)

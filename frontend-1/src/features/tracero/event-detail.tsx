@@ -124,6 +124,22 @@ export function EventDetailPage() {
                   <MessageSquareText /> 用户提问
                 </Badge>
               )}
+              {run.data_source && (
+                <Badge variant='outline' className='shrink-0'>
+                  {run.data_source === 'robot'
+                    ? '真实数据'
+                    : run.data_source === 'demo'
+                      ? 'Demo 数据'
+                      : run.data_source === 'direct'
+                        ? '直传证据'
+                        : '历史数据'}
+                </Badge>
+              )}
+              {run.data_source && run.data_source !== 'legacy' && (
+                <Badge variant='secondary' className='shrink-0'>
+                  富结构为示例
+                </Badge>
+              )}
             </div>
           </div>
         </div>
