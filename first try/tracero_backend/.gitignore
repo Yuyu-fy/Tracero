@@ -5,5 +5,8 @@ tracero.db
 __pycache__/
 *.py[cod]
 
+# 本地 Python 虚拟环境
+.venv/
+
 # 可能存放 API Key 的本地配置文件
 .env

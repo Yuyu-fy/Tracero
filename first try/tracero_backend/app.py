@@ -6,12 +6,32 @@ import urllib.error
 import urllib.request
 import uuid
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 
 app = FastAPI(title="Tracero Backend")
+
+# 本机开发使用默认地址；部署后在服务器设置 CORS_ALLOW_ORIGINS，
+# 例如：CORS_ALLOW_ORIGINS=https://tracero-frontend.example.com
+cors_allow_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOW_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173",
+    ).split(",")
+    if origin.strip()
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_allow_origins,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Accept", "Content-Type"],
+)
 
 # SQLite 是一个保存在当前文件夹里的小型数据库文件。
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), "tracero.db")
@@ -20,6 +40,17 @@ DATABASE_PATH = os.path.join(os.path.dirname(__file__), "tracero.db")
 class ReasonRequest(BaseModel):
     evidence_type: str
     evidence: list[dict]
+
+
+class EventIngestRequest(BaseModel):
+    """A 同学的 Agent 在检测到异常后发送的事件切片。"""
+
+    event_type: str
+    trigger_time: float
+    robot_id: str
+    window: dict
+    params_snapshot: dict = Field(default_factory=dict)
+    static_index_version: Optional[str] = None
 
 
 def get_connection():
@@ -38,7 +69,11 @@ def init_database():
             CREATE TABLE IF NOT EXISTS runs (
                 run_id TEXT PRIMARY KEY,
                 evidence_type TEXT NOT NULL,
+                trigger_time REAL,
+                robot_id TEXT,
                 status TEXT NOT NULL,
+                progress TEXT,
+                raw_event_json TEXT,
                 evidence_json TEXT NOT NULL,
                 output TEXT NOT NULL,
                 verified INTEGER NOT NULL,
@@ -48,14 +83,37 @@ def init_database():
             )
             """
         )
+        ensure_runs_columns(connection)
         connection.commit()
     finally:
         connection.close()
 
 
+def ensure_runs_columns(connection):
+    """为已经创建过的旧 runs 表补充事件接收阶段所需的列。"""
+    existing_columns = {
+        row["name"] for row in connection.execute("PRAGMA table_info(runs)")
+    }
+    missing_columns = {
+        "trigger_time": "REAL",
+        "robot_id": "TEXT",
+        "progress": "TEXT",
+        "raw_event_json": "TEXT",
+    }
+
+    for name, column_type in missing_columns.items():
+        if name not in existing_columns:
+            connection.execute(f"ALTER TABLE runs ADD COLUMN {name} {column_type}")
+
+
+def new_run_id():
+    """生成一次诊断任务的唯一编号。"""
+    return f"run-{uuid.uuid4().hex[:8]}"
+
+
 def save_run(mock_data, output, errors, valid_evidence_ids):
     """把一次 AI 分析的输入、输出和校验结果保存到 SQLite。"""
-    run_id = f"run-{uuid.uuid4().hex[:8]}"
+    run_id = new_run_id()
     created_at = datetime.now(timezone.utc).isoformat()
     verified = len(errors) == 0
 
@@ -87,12 +145,54 @@ def save_run(mock_data, output, errors, valid_evidence_ids):
     return run_id, created_at, verified
 
 
+def create_received_run(event):
+    """保存 A 推送的原始事件，并创建一个等待推理的 run。"""
+    run_id = new_run_id()
+    created_at = datetime.now(timezone.utc).isoformat()
+    raw_event = event.dict()
+
+    connection = get_connection()
+    try:
+        connection.execute(
+            """
+            INSERT INTO runs (
+                run_id, evidence_type, trigger_time, robot_id, status, progress,
+                raw_event_json, evidence_json, output, verified, errors_json,
+                valid_evidence_ids_json, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                run_id,
+                event.event_type,
+                event.trigger_time,
+                event.robot_id,
+                "received",
+                "已接收事件，等待构建证据",
+                json.dumps(raw_event, ensure_ascii=False),
+                "[]",
+                "",
+                False,
+                "[]",
+                "[]",
+                created_at,
+            ),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    return run_id, created_at
+
+
 def row_to_run(row, include_details=False):
     """把 SQLite 里的一行数据转换成 API 返回的 JSON。"""
     run = {
         "run_id": row["run_id"],
         "evidence_type": row["evidence_type"],
+        "trigger_time": row["trigger_time"],
+        "robot_id": row["robot_id"],
         "status": row["status"],
+        "progress": row["progress"],
         "verified": bool(row["verified"]),
         "created_at": row["created_at"],
     }
@@ -105,6 +205,8 @@ def row_to_run(row, include_details=False):
                 "valid_evidence_ids": json.loads(row["valid_evidence_ids_json"]),
             }
         )
+        if row["raw_event_json"]:
+            run["raw_event"] = json.loads(row["raw_event_json"])
     return run
 
 
@@ -215,6 +317,17 @@ def health():
     return {"status": "ok"}
 
 
+@app.post("/api/ingest/event")
+def ingest_event(event: EventIngestRequest):
+    """接收 A 的异常切片，先落盘，后续由推理步骤消费。"""
+    run_id, created_at = create_received_run(event)
+    return {
+        "run_id": run_id,
+        "status": "received",
+        "created_at": created_at,
+    }
+
+
 @app.get("/api/runs")
 def list_runs():
     """查看所有已经保存的 AI 分析记录。"""
@@ -244,6 +357,23 @@ def get_run(run_id: str):
         raise HTTPException(status_code=404, detail="找不到这条分析记录")
 
     return row_to_run(row, include_details=True)
+
+
+@app.get("/api/runs/{run_id}/status")
+def get_run_status(run_id: str):
+    """供后续推理任务和前端轮询当前进度。"""
+    connection = get_connection()
+    try:
+        row = connection.execute(
+            "SELECT status, progress FROM runs WHERE run_id = ?", (run_id,)
+        ).fetchone()
+    finally:
+        connection.close()
+
+    if row is None:
+        raise HTTPException(status_code=404, detail="找不到这条分析记录")
+
+    return {"status": row["status"], "progress": row["progress"]}
 
 
 @app.post("/api/debug/reason")
