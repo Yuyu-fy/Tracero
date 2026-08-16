@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "index": {
+    "/scan": {
+      "publisher": {
+        "node": "scan_publisher",
+        "file": "src/scan_publisher.cpp",
+        "line": 42,
+        "snippet": "publisher_->publish(scan);"
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+# ROS 2 / colcon
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+
+# Runtime data
+tracero_agent_data/
+events/
+sent/
+failed/
+
+# ROS data
+*.db3
+*.bag
+*.mcap
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Secrets and local configuration
+.env
+.env.*
+*.key
+*.pem

@@ -1,0 +1,1151 @@
+{
+  "event_type": "navigation_failed",
+  "trigger_time": 1786809813.0320866,
+  "robot_id": "tc-01",
+  "window": {
+    "pre_5s": [
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809808.077514,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 39.7,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809808.1326175,
+        "data": {
+          "position_x": 1.0136316273906876,
+          "position_y": -0.46760342982621905,
+          "orientation_z": 0.9173246231868997,
+          "orientation_w": 0.3830639075236422,
+          "linear_x": -8.664867309135646e-05,
+          "angular_z": 0.0004962684388940434
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809808.2403116,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.36673587560653687,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809808.2908323,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 39.9,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809808.3679483,
+        "data": {
+          "position_x": 1.0135587749902397,
+          "position_y": -0.4677549227629403,
+          "orientation_z": 0.9172851969927582,
+          "orientation_w": 0.38381360853507823,
+          "linear_x": -0.0004899631694727459,
+          "angular_z": 0.0009937951099264837
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809808.4602218,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.37396085262298584,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809808.4931748,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 40.1,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809808.5933654,
+        "data": {
+          "position_x": 1.0137492040465017,
+          "position_y": -0.46774716134396643,
+          "orientation_z": 0.9181855097324565,
+          "orientation_w": 0.3834240305336123,
+          "linear_x": -0.0007378058048715181,
+          "angular_z": 0.0006085251651338859
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809808.677442,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.38145121932029724,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809808.6972702,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 40.3,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809808.8144643,
+        "data": {
+          "position_x": 1.0139753620974152,
+          "position_y": -0.4677652932020835,
+          "orientation_z": 0.9191794745985209,
+          "orientation_w": 0.3830979983586958,
+          "linear_x": -0.0009399917039804318,
+          "angular_z": -0.0005307910917795413
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809808.830389,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 396
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809808.8972666,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.373778760433197,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809808.8982544,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 40.4,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/diagnostics",
+        "timestamp": 1786809808.9108307,
+        "data": {
+          "max_level": 0,
+          "status_count": 1,
+          "messages": [
+            "Nav2 is active"
+          ]
+        }
+      },
+      {
+        "topic": "/global_costmap/costmap",
+        "timestamp": 1786809808.997328,
+        "data": {
+          "width": 124,
+          "height": 116,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 11864,
+          "lethal_cell_count": 1102
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809809.0364587,
+        "data": {
+          "position_x": 1.0141867860936138,
+          "position_y": -0.46785764633938226,
+          "orientation_z": 0.9201033630380071,
+          "orientation_w": 0.38312701049788267,
+          "linear_x": -0.0011481530607882484,
+          "angular_z": -0.001479649606380505
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809809.1075695,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 40.6,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809809.1197176,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.37987127900123596,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809809.2639518,
+        "data": {
+          "position_x": 1.0143430015709722,
+          "position_y": -0.4680584380736861,
+          "orientation_z": 0.920892465299438,
+          "orientation_w": 0.38365441101001047,
+          "linear_x": -0.001332893170383061,
+          "angular_z": -0.0015208161709431931
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809809.3078485,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 40.8,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809809.3438127,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.3815387785434723,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809809.483819,
+        "data": {
+          "position_x": 1.0145005655543622,
+          "position_y": -0.4683140865554119,
+          "orientation_z": 0.9216211516755369,
+          "orientation_w": 0.38424402563089194,
+          "linear_x": -0.0015285176612956281,
+          "angular_z": -0.0007868253847170271
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809809.5121222,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 41.0,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809809.5637844,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.3853076100349426,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809809.63104,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 384
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809809.7116272,
+        "data": {
+          "position_x": 1.014693211638858,
+          "position_y": -0.4685913134390033,
+          "orientation_z": 0.9222681101716066,
+          "orientation_w": 0.3846781771256681,
+          "linear_x": -0.0017256705992070328,
+          "angular_z": 9.233108309674901e-05
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809809.7171445,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 41.2,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809809.7773268,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.3864366114139557,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809809.9176743,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 41.4,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809809.9336812,
+        "data": {
+          "position_x": 1.0149284014479811,
+          "position_y": -0.46888340021109404,
+          "orientation_z": 0.9227458398773576,
+          "orientation_w": 0.3849124805870701,
+          "linear_x": -0.0019259261081091142,
+          "angular_z": 0.0008446535682597591
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809810.0002818,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.39450734853744507,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/diagnostics",
+        "timestamp": 1786809810.0137842,
+        "data": {
+          "max_level": 0,
+          "status_count": 1,
+          "messages": [
+            "Nav2 is active"
+          ]
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809810.1270084,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 41.6,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809810.1618903,
+        "data": {
+          "position_x": 1.0152105216872935,
+          "position_y": -0.46919383202025183,
+          "orientation_z": 0.9229316437347308,
+          "orientation_w": 0.38494791735046413,
+          "linear_x": -0.0028386031219562596,
+          "angular_z": 0.00016554980019073618
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809810.2160487,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.39877310395240784,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809810.3275673,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 41.7,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809810.3633275,
+        "data": {
+          "position_x": 1.0160132383579492,
+          "position_y": -0.4698072789462177,
+          "orientation_z": 0.921517690946446,
+          "orientation_w": 0.3879098485198616,
+          "linear_x": 0.009162835377832083,
+          "angular_z": -0.09779395155642899
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809810.4351466,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 387
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809810.4540317,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.41305455565452576,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809810.5329626,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 41.9,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809810.5820036,
+        "data": {
+          "position_x": 1.0210541411092935,
+          "position_y": -0.4709141118426189,
+          "orientation_z": 0.9174123168574029,
+          "orientation_w": 0.39642777396530704,
+          "linear_x": 0.005385156012151653,
+          "angular_z": -0.08213988002127165
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809810.6698432,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.42395728826522827,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809810.7405996,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 42.1,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809810.796455,
+        "data": {
+          "position_x": 1.0203039481003728,
+          "position_y": -0.4701219622740127,
+          "orientation_z": 0.9136603687662019,
+          "orientation_w": 0.40391598352055114,
+          "linear_x": 0.0064598031507595854,
+          "angular_z": -0.08088308503315764
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809810.8889966,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4231427013874054,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809810.9597118,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 42.3,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/global_costmap/costmap",
+        "timestamp": 1786809810.9941933,
+        "data": {
+          "width": 124,
+          "height": 116,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 11866,
+          "lethal_cell_count": 1147
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809811.0334618,
+        "data": {
+          "position_x": 1.0194117387479047,
+          "position_y": -0.4692344762489628,
+          "orientation_z": 0.9103027658140093,
+          "orientation_w": 0.41115783512927057,
+          "linear_x": -0.005291979703029397,
+          "angular_z": -0.07650843256840034
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809811.034935,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 384
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809811.1111064,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4252989888191223,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/diagnostics",
+        "timestamp": 1786809811.1234424,
+        "data": {
+          "max_level": 0,
+          "status_count": 1,
+          "messages": [
+            "Nav2 is active"
+          ]
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809811.167459,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 42.5,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809811.2496727,
+        "data": {
+          "position_x": 1.0197099294139413,
+          "position_y": -0.469659808229191,
+          "orientation_z": 0.9077112209343702,
+          "orientation_w": 0.41749564212341234,
+          "linear_x": -0.004240587603536787,
+          "angular_z": -0.06481650448588441
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809811.322395,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4351602792739868,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809811.3684158,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 42.7,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809811.4638846,
+        "data": {
+          "position_x": 1.0197520751210543,
+          "position_y": -0.46954028860479513,
+          "orientation_z": 0.9055916599721241,
+          "orientation_w": 0.42311168591590037,
+          "linear_x": 0.005617896700664416,
+          "angular_z": -0.04719935462399844
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809811.54052,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.425902396440506,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809811.5772328,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 42.9,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809811.6937504,
+        "data": {
+          "position_x": 1.0194408442014766,
+          "position_y": -0.46921766171521667,
+          "orientation_z": 0.9052163342140186,
+          "orientation_w": 0.4247089950119494,
+          "linear_x": 0.0015903681132124362,
+          "angular_z": -0.0019057934254979524
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809811.762304,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.42455175518989563,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809811.7772768,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 43.1,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809811.8301797,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 386
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809811.9239876,
+        "data": {
+          "position_x": 1.0192086387740629,
+          "position_y": -0.4689976913812803,
+          "orientation_z": 0.9052937337902311,
+          "orientation_w": 0.4247816302573377,
+          "linear_x": 0.0015896724370046485,
+          "angular_z": -0.0007230637882552078
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809811.9776244,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 43.2,
+          "number_of_recoveries": 15
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809811.9883244,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.41931265592575073,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809812.1246212,
+        "data": {
+          "position_x": 1.0190303541488601,
+          "position_y": -0.46881395779947577,
+          "orientation_z": 0.9051847049329803,
+          "orientation_w": 0.4247710535854063,
+          "linear_x": 0.0014191717052052994,
+          "angular_z": -0.0006467751235453581
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809812.187813,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 43.4,
+          "number_of_recoveries": 16
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809812.220454,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.41288989782333374,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/diagnostics",
+        "timestamp": 1786809812.2336187,
+        "data": {
+          "max_level": 0,
+          "status_count": 1,
+          "messages": [
+            "Nav2 is active"
+          ]
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809812.345507,
+        "data": {
+          "position_x": 1.0188491020970847,
+          "position_y": -0.4686166843263757,
+          "orientation_z": 0.9049101871874289,
+          "orientation_w": 0.42469197552623433,
+          "linear_x": 0.0012115967076586128,
+          "angular_z": -0.0006892288724440773
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809812.388116,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 43.6,
+          "number_of_recoveries": 16
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809812.4297569,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4251883327960968,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809812.5659325,
+        "data": {
+          "position_x": 1.0187015499031338,
+          "position_y": -0.4684460069810625,
+          "orientation_z": 0.9045546984248795,
+          "orientation_w": 0.4245688997716085,
+          "linear_x": 0.0010065135707129085,
+          "angular_z": -0.0005963676712039045
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809812.596995,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 43.8,
+          "number_of_recoveries": 16
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809812.6403778,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 385
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809812.6608016,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4096585512161255,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809812.7971015,
+        "data": {
+          "position_x": 1.0185863178600283,
+          "position_y": -0.4683028407848624,
+          "orientation_z": 0.9041884363371786,
+          "orientation_w": 0.42441907788102123,
+          "linear_x": 0.0008017213578906338,
+          "angular_z": -0.0004561557582304709
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809812.7981179,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 44.0,
+          "number_of_recoveries": 16
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809812.883657,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.41337648034095764,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/global_costmap/costmap",
+        "timestamp": 1786809812.9966338,
+        "data": {
+          "width": 124,
+          "height": 116,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 11844,
+          "lethal_cell_count": 955
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/feedback",
+        "timestamp": 1786809813.0013065,
+        "data": {
+          "distance_remaining": 0.0,
+          "navigation_time_sec": 44.1,
+          "number_of_recoveries": 16
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809813.0315015,
+        "data": {
+          "position_x": 1.0185008187317635,
+          "position_y": -0.46818934977449805,
+          "orientation_z": 0.9038620497617879,
+          "orientation_w": 0.42426707938282016,
+          "linear_x": 0.0005964865375733782,
+          "angular_z": -0.00030028550905572635
+        }
+      },
+      {
+        "topic": "/navigate_to_pose/_action/status",
+        "timestamp": 1786809813.0320692,
+        "data": {
+          "status": 6
+        }
+      }
+    ],
+    "post_2s": [
+      {
+        "topic": "/scan",
+        "timestamp": 1786809813.1038206,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4170892834663391,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809813.235661,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 385
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809813.2517111,
+        "data": {
+          "position_x": 1.0184437090732714,
+          "position_y": -0.46810678967337516,
+          "orientation_z": 0.9036128457994448,
+          "orientation_w": 0.42413457103112395,
+          "linear_x": 0.0003906281387811132,
+          "angular_z": -0.0001643266365436368
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809813.3331504,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4022342264652252,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/diagnostics",
+        "timestamp": 1786809813.3463497,
+        "data": {
+          "max_level": 0,
+          "status_count": 1,
+          "messages": [
+            "Nav2 is active"
+          ]
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809813.4800155,
+        "data": {
+          "position_x": 1.0184139950982236,
+          "position_y": -0.4680561500175189,
+          "orientation_z": 0.9034656083670415,
+          "orientation_w": 0.42403935361084755,
+          "linear_x": 0.00018433076870576497,
+          "angular_z": -6.26940164996588e-05
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809813.549776,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.41669154167175293,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809813.6998017,
+        "data": {
+          "position_x": 1.0184109870014433,
+          "position_y": -0.46803812098223735,
+          "orientation_z": 0.9034335587078801,
+          "orientation_w": 0.42399397463232713,
+          "linear_x": -2.2464627207777516e-05,
+          "angular_z": 1.115491779739201e-06
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809813.7611108,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.40949296951293945,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809813.9156306,
+        "data": {
+          "position_x": 1.0184341779253676,
+          "position_y": -0.46805316304866995,
+          "orientation_z": 0.9035189536780294,
+          "orientation_w": 0.4240047590470198,
+          "linear_x": -0.00022916331980935999,
+          "angular_z": 3.0483401744317286e-05
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809813.975154,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.3991394639015198,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809814.0299485,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 387
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809814.1248262,
+        "data": {
+          "position_x": 1.0184832631400043,
+          "position_y": -0.4681014749369866,
+          "orientation_z": 0.9037132968145017,
+          "orientation_w": 0.4240713530001051,
+          "linear_x": -0.00043549976479892276,
+          "angular_z": 3.255816847619439e-05
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809814.1791794,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.41147270798683167,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809814.3349319,
+        "data": {
+          "position_x": 1.0185580586231164,
+          "position_y": -0.4681830781988894,
+          "orientation_z": 0.9039972593104715,
+          "orientation_w": 0.42418660989303686,
+          "linear_x": -0.00064154245122987,
+          "angular_z": 1.601104095247166e-05
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809814.393779,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.42098236083984375,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/diagnostics",
+        "timestamp": 1786809814.4034362,
+        "data": {
+          "max_level": 0,
+          "status_count": 1,
+          "messages": [
+            "Nav2 is active"
+          ]
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809814.5594113,
+        "data": {
+          "position_x": 1.0186585447271188,
+          "position_y": -0.4682978343331294,
+          "orientation_z": 0.9043403868644672,
+          "orientation_w": 0.4243366779573733,
+          "linear_x": -0.0008467359254178349,
+          "angular_z": -1.0965432453879804e-05
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809814.6081247,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4223612844944,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/local_costmap/costmap",
+        "timestamp": 1786809814.637475,
+        "data": {
+          "width": 60,
+          "height": 60,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 3489,
+          "lethal_cell_count": 389
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809814.7867365,
+        "data": {
+          "position_x": 1.0187847627009938,
+          "position_y": -0.4684455944026921,
+          "orientation_z": 0.9047006602371184,
+          "orientation_w": 0.42450116676781774,
+          "linear_x": -0.001051706185167227,
+          "angular_z": -4.1247995917286383e-05
+        }
+      },
+      {
+        "topic": "/scan",
+        "timestamp": 1786809814.8280218,
+        "data": {
+          "range_min": 0.11999999731779099,
+          "range_max": 3.5,
+          "front_min_range": 0.4035665988922119,
+          "valid_sample_count": 360
+        }
+      },
+      {
+        "topic": "/global_costmap/costmap",
+        "timestamp": 1786809814.9938025,
+        "data": {
+          "width": 124,
+          "height": 116,
+          "resolution": 0.05000000074505806,
+          "occupied_cell_count": 11850,
+          "lethal_cell_count": 1001
+        }
+      },
+      {
+        "topic": "/odom",
+        "timestamp": 1786809815.0050323,
+        "data": {
+          "position_x": 1.018936892931275,
+          "position_y": -0.46862624616507725,
+          "orientation_z": 0.9050239587383481,
+          "orientation_w": 0.42465332281857754,
+          "linear_x": -0.0012572613215818683,
+          "angular_z": -6.938886369581446e-05
+        }
+      }
+    ]
+  },
+  "params_snapshot": {
+    "controller_frequency": 10.0,
+    "update_frequency": 5.0
+  },
+  "static_index_version": "v1"
+}
